@@ -1,0 +1,33 @@
+name: Build Windows Game
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Raylib (static)
+        run: vcpkg install raylib:x64-windows-static
+
+      - name: Configure CMake
+        shell: pwsh
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+
+      - name: Build Release
+        run: cmake --build build --config Release --parallel
+
+      - name: Upload Windows executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: STREET-RACER-Windows
+          path: build/Release/STREET_RACER.exe
+          if-no-files-found: error
