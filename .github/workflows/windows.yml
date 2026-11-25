@@ -15,6 +15,12 @@ jobs:
       - name: Install Raylib (static)
         run: vcpkg install raylib:x64-windows-static
 
+      - name: Decode source archive
+        shell: pwsh
+        run: |
+          $encoded = Get-Content source.zip.b64 -Raw
+          [System.IO.File]::WriteAllBytes("source.zip", [Convert]::FromBase64String($encoded))
+
       - name: Configure CMake
         shell: pwsh
         run: >-
